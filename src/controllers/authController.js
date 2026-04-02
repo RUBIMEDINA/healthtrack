@@ -140,6 +140,7 @@ exports.login = async (req, res) => {
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
 
+        
         res.json({
             msg: 'Login exitoso',
             token,
@@ -149,6 +150,7 @@ exports.login = async (req, res) => {
                 nombre: usuario.nombre,
                 rol: usuario.rol,
                 telefono: usuario.telefono,
+                // Solo incluir campos médicos si es paciente
                 ...(usuario.rol === 'paciente' && {
                     edad: usuario.edad,
                     sexo: usuario.sexo,
