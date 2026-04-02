@@ -23,13 +23,36 @@ const usuarioSchema = new mongoose.Schema({
         default: 'paciente',
         required: true
     },
+    telefono: {
+        type: String,
+        required: true,
+        default: ''
+    },
+    edad: {
+        type: Number,
+        default: null
+    },
+    sexo: {
+        type: String,
+        enum: ['Male', 'Female', 'Other', ''],
+        default: ''
+    },
+    tipoSangre: {
+        type: String,
+        enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', ''],
+        default: ''
+    },
+    alergias: {
+        type: String,
+        default: ''
+    },
+    condicionesCronicas: {
+        type: String,
+        default: ''
+    },
     fechaNacimiento: {
         type: Date,
         default: null
-    },
-    telefono: {
-        type: String,
-        default: ''
     },
     direccion: {
         type: String,

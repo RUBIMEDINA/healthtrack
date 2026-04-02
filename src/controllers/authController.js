@@ -13,10 +13,41 @@ exports.getAllUsers = async (req, res) => {
 
 exports.register = async (req, res) => {
     try {
-        const { email, password, nombre, rol = 'paciente', fechaNacimiento, telefono, direccion } = req.body;
+        const {
+            email,
+            password,
+            nombre,
+            rol = 'paciente',
+            telefono,
+            edad,
+            sexo,
+            tipoSangre,
+            alergias,
+            condicionesCronicas,
+            fechaNacimiento,
+            direccion
+        } = req.body;
 
+        // Validaciones generales
         if (!email || !password || !nombre) {
             return res.status(400).json({ msg: 'Email, password y nombre son requeridos' });
+        }
+
+        if (!telefono) {
+            return res.status(400).json({ msg: 'El teléfono es requerido' });
+        }
+
+        // Validaciones específicas para pacientes
+        if (rol === 'paciente') {
+            if (!edad) {
+                return res.status(400).json({ msg: 'La edad es requerida para pacientes' });
+            }
+            if (!sexo) {
+                return res.status(400).json({ msg: 'El sexo es requerido para pacientes' });
+            }
+            if (!tipoSangre) {
+                return res.status(400).json({ msg: 'El tipo de sangre es requerido para pacientes' });
+            }
         }
 
         const usuarioExistente = await Usuario.findOne({ email });
@@ -32,9 +63,14 @@ exports.register = async (req, res) => {
             password: hashedPassword,
             nombre,
             rol,
-            fechaNacimiento,
             telefono,
-            direccion
+            edad: rol === 'paciente' ? edad : null,
+            sexo: rol === 'paciente' ? sexo : '',
+            tipoSangre: rol === 'paciente' ? tipoSangre : '',
+            alergias: rol === 'paciente' ? (alergias || 'Ninguna') : '',
+            condicionesCronicas: rol === 'paciente' ? (condicionesCronicas || 'Ninguna') : '',
+            fechaNacimiento: fechaNacimiento || null,
+            direccion: direccion || ''
         });
 
         await nuevoUsuario.save();
@@ -57,7 +93,15 @@ exports.register = async (req, res) => {
                 id: nuevoUsuario.id,
                 email: nuevoUsuario.email,
                 nombre: nuevoUsuario.nombre,
-                rol: nuevoUsuario.rol
+                rol: nuevoUsuario.rol,
+                telefono: nuevoUsuario.telefono,
+                ...(rol === 'paciente' && {
+                    edad: nuevoUsuario.edad,
+                    sexo: nuevoUsuario.sexo,
+                    tipoSangre: nuevoUsuario.tipoSangre,
+                    alergias: nuevoUsuario.alergias,
+                    condicionesCronicas: nuevoUsuario.condicionesCronicas
+                })
             }
         });
 
@@ -103,7 +147,15 @@ exports.login = async (req, res) => {
                 id: usuario.id,
                 email: usuario.email,
                 nombre: usuario.nombre,
-                rol: usuario.rol
+                rol: usuario.rol,
+                telefono: usuario.telefono,
+                ...(usuario.rol === 'paciente' && {
+                    edad: usuario.edad,
+                    sexo: usuario.sexo,
+                    tipoSangre: usuario.tipoSangre,
+                    alergias: usuario.alergias,
+                    condicionesCronicas: usuario.condicionesCronicas
+                })
             }
         });
 
