@@ -10,10 +10,12 @@ exports.getMisCitas = async (req, res) => {
         if (usuarioRol === 'paciente') {
             citas = await Cita.find({ paciente: usuarioId })
                 .populate('medico', 'nombre email telefono')
+                .populate('paciente', 'nombre email telefono edad tipoSangre')
                 .sort({ fecha: 1 });
         } else if (usuarioRol === 'medico') {
             citas = await Cita.find({ medico: usuarioId })
-                .populate('paciente', 'nombre email telefono fechaNacimiento')
+                .populate('paciente', 'nombre email telefono fechaNacimiento edad tipoSangre')
+                .populate('medico', 'nombre email telefono')
                 .sort({ fecha: 1 });
         } else {
             return res.status(403).json({ msg: 'Rol no autorizado' });
@@ -55,7 +57,10 @@ exports.crearCita = async (req, res) => {
         });
 
         await nuevaCita.save();
-        await nuevaCita.populate('medico', 'nombre email');
+        
+        // Poblar los datos del paciente Y del médico para la respuesta
+        await nuevaCita.populate('medico', 'nombre email telefono');
+        await nuevaCita.populate('paciente', 'nombre email telefono edad tipoSangre');
 
         res.status(201).json({
             msg: 'Cita creada exitosamente',
